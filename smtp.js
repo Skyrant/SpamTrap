@@ -31,7 +31,7 @@ var srv = net.createServer(function(c) {
 	var send = function(line) {
 		setTimeout(function() {
 			c.write(line + "\r\n");
-		}, Math.round(Math.random() * 1000));
+		}, /*Math.round(Math.random() * 1000)*/ 500);
 	}
 	
 	c.on('error', function(err) {
