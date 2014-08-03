@@ -34,6 +34,9 @@ var srv = net.createServer(function(c) {
 		}, Math.round(Math.random() * 1000));
 	}
 	
+	c.on('error', function(err) {
+		console.log(ip + ':' + port + ' error:', err);
+	});
 	c.on('end', function() {
 		console.log(ip + ':' + port + ' disconnected.');
 		addLog('disconnect');
