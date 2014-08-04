@@ -89,11 +89,10 @@ var srv = net.createServer(function(c) {
 			msg: msg
 		});
 	}
-	var send = function(line) {
-		addLog(line, true);
-		
+	var send = function(line) {		
 		setTimeout(function() {
 			console.log(ip + ':' + port + ' S ' + line);
+			addLog(line, true);
 			c.write(line + "\r\n");
 		}, /*Math.round(Math.random() * 1000)*/ 500);
 	}
