@@ -91,7 +91,7 @@ var srv = net.createServer(function(c) {
 	}
 	var send = function(line) {		
 		setTimeout(function() {
-			console.log(ip + ':' + port + ' S ' + line);
+			console.log(ip + ':' + port + ' S ' + line.replace(/\r?\n/g, ' | '));
 			addLog(line, true);
 			c.write(line + "\r\n");
 		}, /*Math.round(Math.random() * 1000)*/ 500);
