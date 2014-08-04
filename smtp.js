@@ -1,13 +1,71 @@
 var q = require('q');
 var net = require('net');
 var carrier = require('carrier');
-var nano = require('nano')('https://couch.fluffl.es');
+var nano = require('nano')('https://spamtrap:823yjFQMNG2SDXsnloo6@couch.fluffl.es');
 var ndb = nano.db;
 
 var banner = "smtp.litehost.net ESMTP Postfix";
 
 ndb.create('spamtrap-smtp');
 var db = nano.use('spamtrap-smtp');
+
+(function() {
+
+	function create() {
+		var body = {
+			_id: "_design/views",
+			language: 'javascript',
+			views: {
+				byIP: { map: function(doc) { emit(doc.ip, doc); } },
+				byTime: { map: function(doc) { emit(doc.ts, doc); } }
+			}
+		};
+		
+		db.insert(body, function(err) {
+			if(err) console.log(err);
+		});
+	}
+	
+	function update() {
+		db.get('_design/views', function(err, body) {
+			if(err) {
+				console.log(err);
+				return;
+			}
+			
+			var views = body.views;
+			views['byIP'] = {map: function(doc) { emit(doc.ip, doc); } };
+			views['byTime'] = {map: function(doc) { emit(doc.ts, doc); } };
+			
+			var newbody = body;
+			newbody['language'] = "javascript";
+			newbody['views'] = views;
+			
+			db.insert(newbody, '_design/views', function(err) {
+				if(err) console.log(err);
+			});
+		});
+	}
+
+	// Initialize design docs
+	db.head('_design/views', function(err, _, headers) {
+		if(err) {
+			if (err['status-code'] === 404) {
+				create();
+				return;
+			} else {
+				console.log(err);
+			}
+			return;
+		}
+		
+		if(headers['status-code'] === 200) {
+			update();
+		} else {
+			console.log(headers);
+		}
+	});
+})();
 
 var srv = net.createServer(function(c) {
 	c.setEncoding('ascii');
