@@ -22,14 +22,20 @@ var srv = net.createServer(function(c) {
 	var mode = 'cmd'; // cmd, data
 	var data = [];
 	
-	var addLog = function(msg) {
+	var addLog = function(msg, isServer) {
+		if(isServer === true) {
+			msg = 'S ' + msg;
+		}
 		client.log.push({
 			ts: new Date().getTime(),
 			msg: msg
 		});
 	}
 	var send = function(line) {
+		addLog(line, true);
+		
 		setTimeout(function() {
+			console.log(ip + ':' + port + ' S ' + line);
 			c.write(line + "\r\n");
 		}, /*Math.round(Math.random() * 1000)*/ 500);
 	}
@@ -51,7 +57,7 @@ var srv = net.createServer(function(c) {
 	carrier.carry(c, function(line) {		
 		if(mode == 'cmd') {
 			addLog(line);
-			console.log(ip + ':' + port + ' ' + line);
+			console.log(ip + ':' + port + ' C ' + line);
 		
 			var args = line.split(' ');
 			var cmd = args[0].toUpperCase();
