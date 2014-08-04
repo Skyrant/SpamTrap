@@ -11,14 +11,16 @@ var db = nano.use('spamtrap-smtp');
 
 (function() {
 
+	var views = {
+		byIP: { map: function(doc) { emit(doc.ip, doc); } },
+		byTime: { map: function(doc) { emit(doc.ts, doc); } }
+	}
+
 	function create() {
 		var body = {
 			_id: "_design/views",
 			language: 'javascript',
-			views: {
-				byIP: { map: function(doc) { emit(doc.ip, doc); } },
-				byTime: { map: function(doc) { emit(doc.ts, doc); } }
-			}
+			views: views
 		};
 		
 		db.insert(body, function(err) {
@@ -32,10 +34,6 @@ var db = nano.use('spamtrap-smtp');
 				console.log(err);
 				return;
 			}
-			
-			var views = body.views;
-			views['byIP'] = {map: function(doc) { emit(doc.ip, doc); } };
-			views['byTime'] = {map: function(doc) { emit(doc.ts, doc); } };
 			
 			var newbody = body;
 			newbody['language'] = "javascript";
