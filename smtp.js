@@ -79,9 +79,12 @@ var srv = net.createServer(function(c) {
 	var data = [];
 	
 	var addLog = function(msg, isServer) {
+		msg = msg.replace(/\r?\n/g, ' | ');
+		
 		if(isServer === true) {
 			msg = 'S ' + msg;
 		}
+		
 		client.log.push({
 			ts: new Date().getTime(),
 			msg: msg
@@ -147,6 +150,12 @@ var srv = net.createServer(function(c) {
 			if(line == '.') {
 				mode = 'cmd';
 				client['data'] = data;
+				var databytes = 0;
+				for(var i in data) {
+					var d = data[i];
+					databytes += d.length;
+				}
+				addLog("DATA mode concluded with " + databytes + " bytes.");
 				send('250 Ok: queued as yoloswag31337');
 			} else {
 				data.push(line);

@@ -192,7 +192,15 @@
 				$scope.$apply(function() {
 					$scope.logbody = args;
 				});
-				$( "#dialog" ).dialog();
+				$( "#dialog" ).dialog({
+					modal: true,
+					width: 'auto',
+					buttons: {
+						Ok: function() {
+							$( this ).dialog( "close" );
+						}
+					}
+				});
 			}
 		
 			$scope.$on('showmodal', function(e, args) {
