@@ -6,8 +6,17 @@ var ndb = nano.db;
 
 var banner = "smtp.litehost.net ESMTP Postfix";
 
+// Drop privileges
+var UID = 'blood';
+var GID = 'users';
+
 ndb.create('spamtrap-smtp');
 var db = nano.use('spamtrap-smtp');
+
+function dropPrivileges() {
+	process.setgid(GID);
+	process.setuid(UID);
+}
 
 (function() {
 
@@ -168,4 +177,10 @@ var srv = net.createServer(function(c) {
 });
 srv.listen(25, function() {
 	console.log('Listening on 25/smtp');
+	try {
+		dropPrivileges();
+		console.log('Successfully dropped privileges to ' + process.getuid() + ':' + process.getgid());
+	} catch(err) {
+		console.warning('Unable to drop privileges, continuing as root!');
+	}
 });
