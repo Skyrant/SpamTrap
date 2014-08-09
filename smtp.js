@@ -109,6 +109,11 @@ var srv = net.createServer(function(c) {
 	
 	c.on('error', function(err) {
 		console.log(ip + ':' + port + ' error:', err);
+		
+		addLog('disconnect (' + err + ')');
+		db.insert(client, function(err, body) {
+			if(err) console.log(err);
+		});
 	});
 	c.on('end', function() {
 		console.log(ip + ':' + port + ' disconnected.');
