@@ -128,7 +128,7 @@ var srv = net.createServer(function(c) {
 	
 	carrier.carry(c, function(line) {		
 		if(mode == 'cmd') {
-			addLog(line);
+			addLog('C ' + line);
 			console.log(ip + ':' + port + ' C ' + line);
 		
 			var args = line.split(' ');
@@ -154,6 +154,13 @@ var srv = net.createServer(function(c) {
 					
 				case 'QUIT':
 					send('221 Bye'); // Bye but hog the connection
+					break;
+					
+				case 'VRFY':
+					send('553 User ambiguous');
+					break;
+				case 'EXPN':
+					send('550 Access Denied to You.');
 					break;
 					
 				default:
