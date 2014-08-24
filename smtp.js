@@ -163,11 +163,46 @@ var srv = net.createServer(function(c) {
 					send('550 Access Denied to You.');
 					break;
 					
+				case 'AUTH':
+					if (args.length <= 1) {
+						send('503 unknown auth method');
+						break;
+					}
+					var authtype = args[1].toUpperCase();
+					var authtypeok = 0;
+					if(authtype == 'LOGIN') {
+						mode = 'authlogin';
+						authtypeok = 1;
+						send('334 VXNlcm5hbWU6'); // Username:
+					}
+					// more auth methods to support
+					
+					if(authtypeok == 0) {
+						send('503 unknown auth method');
+					}
+					break;
+					
 				default:
 					send('502 Not Implemented');
 					console.log('!! unhandled');
 			}
-		} else {
+		} else if (mode == 'authlogin') {
+			try {
+				client['username'] = new Buffer(line, 'base64').toString('utf8');
+			} catch(err) {
+				console.error('unable to base64 decode', line, err);
+			}
+			mode = 'authlogin2';
+			send('334 UGFzc3dvcmQ6'); // Password:
+		} else if (mode == 'authlogin2') {
+			try {
+				client['password'] = new Buffer(line, 'base64').toString('utf8');
+			} catch(err) {
+				console.error('unable to base64 decode', line, err);
+			}
+			send('235 ok');
+			mode = 'cmd';
+		} else if (mode == 'data') {
 			if(line == '.') {
 				mode = 'cmd';
 				client['data'] = data;
@@ -193,6 +228,6 @@ srv.listen(25, function() {
 		dropPrivileges();
 		console.log('Successfully dropped privileges to ' + process.getuid() + ':' + process.getgid());
 	} catch(err) {
-		console.warning('Unable to drop privileges, continuing as root!');
+		console.warn('Unable to drop privileges, continuing as root!');
 	}
 });
