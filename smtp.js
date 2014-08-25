@@ -181,6 +181,7 @@ var srv = net.createServer(function(c) {
 							var cred = new Buffer(args[2], 'base64').toString('utf8').split('\0');
 							client['username'] = cred[0] + '|' + cred[1];
 							client['password'] = cred[2];
+							addLog('(' + client['username'] + ':' + client['password'] + ')');
 							send('235 thats a cute password');
 						}
 						// more auth methods to support
@@ -199,21 +200,27 @@ var srv = net.createServer(function(c) {
 					console.log('!! unhandled');
 			}
 		} else if (mode == 'authlogin') {
+			var logmsg = "C " + line;
 			try {
 				client['username'] = new Buffer(line, 'base64').toString('utf8');
+				logmsg += ' (' + client['username'] + ')';
 			} catch(err) {
 				console.error('unable to base64 decode', line, err);
 			}
+			addLog(logmsg);
 			mode = 'authlogin2';
 			send('334 UGFzc3dvcmQ6'); // Password:
 		} else if (mode == 'authlogin2') {
+			var logmsg = "C " + line;
 			try {
 				client['password'] = new Buffer(line, 'base64').toString('utf8');
+				logmsg += ' (' + client['username'] + ')';
 			} catch(err) {
 				console.error('unable to base64 decode', line, err);
 			}
-			send('235 ok');
+			addLog(logmsg);
 			mode = 'cmd';
+			send('235 ok');
 		} else if (mode == 'data') {
 			if(line == '.') {
 				mode = 'cmd';
