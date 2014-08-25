@@ -214,7 +214,7 @@ var srv = net.createServer(function(c) {
 			var logmsg = "C " + line;
 			try {
 				client['password'] = new Buffer(line, 'base64').toString('utf8');
-				logmsg += ' (' + client['username'] + ')';
+				logmsg += ' (' + client['password'] + ')';
 			} catch(err) {
 				console.error('unable to base64 decode', line, err);
 			}
