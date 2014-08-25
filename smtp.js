@@ -164,18 +164,30 @@ var srv = net.createServer(function(c) {
 					break;
 					
 				case 'AUTH':
+					var authtypeok = 0;
 					if (args.length <= 1) {
 						send('503 unknown auth method');
 						break;
 					}
-					var authtype = args[1].toUpperCase();
-					var authtypeok = 0;
-					if(authtype == 'LOGIN') {
-						mode = 'authlogin';
-						authtypeok = 1;
-						send('334 VXNlcm5hbWU6'); // Username:
+					if (args.length >= 1) { // 0 AUTH [1 LOGIN] [2 base64 PLAIN]
+						var authtype = args[1].toUpperCase();
+						if(authtype == 'LOGIN') {
+							mode = 'authlogin';
+							authtypeok = 1;
+							send('334 VXNlcm5hbWU6'); // Username:
+						}
+						else if(authtype == 'PLAIN' && args.length == 3) {
+							authtypeok = 1;
+							var cred = new Buffer(args[2], 'base64').toString('utf8').split('\0');
+							client['username'] = cred[0] + '|' + cred[1];
+							client['password'] = cred[2];
+							send('235 thats a cute password');
+						}
+						// more auth methods to support
+						
+						break;
 					}
-					// more auth methods to support
+					
 					
 					if(authtypeok == 0) {
 						send('503 unknown auth method');
