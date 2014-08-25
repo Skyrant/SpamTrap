@@ -137,7 +137,7 @@ var srv = net.createServer(function(c) {
 			switch(cmd) {
 				case 'HELO':
 				case 'EHLO':
-					send('250-Hello ' + args[1] + ', I\'m not glad to meet you\r\n250 AUTH PLAIN');
+					send('250-Hello ' + args[1] + ', I\'m not glad to meet you\r\n250 AUTH LOGIN');
 					break;
 					
 				case 'MAIL':
