@@ -162,6 +162,9 @@ var srv = net.createServer(function(c) {
 				case 'EXPN':
 					send('550 Access Denied to You.');
 					break;
+				case 'HELP':
+					send('502 5.5.2 Error: command not recognized');
+					break;
 					
 				case 'AUTH':
 					var authtypeok = 0;
