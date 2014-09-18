@@ -142,7 +142,9 @@ var srv = net.createServer(function(c) {
 					
 				case 'MAIL':
 				case 'RCPT':
-					send('250 Ok');
+				case 'RSET':
+				case 'NOOP':
+					send('250 Ok'); // whatever.
 					break;
 				
 				case 'DATA':

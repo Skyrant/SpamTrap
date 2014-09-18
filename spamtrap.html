@@ -152,10 +152,10 @@
 		<option value="-value.ts" selected>Time (desc)</option>
 		<option value="+value.ts">Time (asc)</option>
 		<option value="value.ip">IP</option>
-	</select>
+	</select> <input style="display:inline;" type="checkbox" ng-model="filterBody" ng-change="doFilterBody()">Only show conversations with body
 	
 	<div class="feedtable">
-		<table >
+		<table>
 			<tr>
 				<td>Time</td>
 				<td>IP</td>
@@ -218,10 +218,24 @@
 			function updateFeed() {
 				$.couch.db('spamtrap-smtp').view('views/byTime', {
 					success: function(data) {
-						console.log(data.rows);
+						//console.log(data.rows);
 						
 						$scope.$apply(function() {
-							$scope.feed = data.rows;
+							var rows = [];
+							
+							console.log("filter", $scope.filterBody);
+							
+							if($scope.filterBody == false) {
+								rows = data.rows;
+							} else {
+								for(var i in data.rows) {
+									var r = data.rows[i];
+									if(typeof r.value.data !== "undefined") {
+										rows.push(r);
+									}
+								}
+							}
+							$scope.feed = rows;
 						});
 					},
 					error: error,
@@ -233,11 +247,10 @@
 			
 			$scope.asDate = function(ts) {
 				return Date(ts);
-			}
+			};
 			
 			$scope.showLog = function(id) {
 				var logmsgs = "";
-				
 				$.couch.db('spamtrap-smtp').openDoc(id, {
 					success: function(data) {
 						//console.log(data);
@@ -253,11 +266,14 @@
 					},
 					error: error
 				});
-				
-				
-			}
+			};
+			
+			$scope.doFilterBody = function(e) {
+				updateFeed();
+			};
 			
 			$scope.orderProp = "-value.ts";
+			$scope.filterBody = true;
 		});
 			
 		app.filter('asDate', function() {
