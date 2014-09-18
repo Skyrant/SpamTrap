@@ -1,4 +1,4 @@
-var q = require('q');
+//var q = require('q');
 var net = require('net');
 var carrier = require('carrier');
 var nano = require('nano')('https://spamtrap:823yjFQMNG2SDXsnloo6@couch.fluffl.es');
