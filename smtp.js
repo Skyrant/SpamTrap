@@ -149,7 +149,6 @@ var srv = net.createServer(function(c) {
 					send('354 End data with <CR><LF>.<CR><LF>');
 					mode = 'data';
 					data = [];
-					//send('502 Not Implemented');
 					break;
 					
 				case 'QUIT':
@@ -179,13 +178,19 @@ var srv = net.createServer(function(c) {
 							authtypeok = 1;
 							send('334 VXNlcm5hbWU6'); // Username:
 						}
-						else if(authtype == 'PLAIN' && args.length == 3) {
+						else if(authtype == 'PLAIN') { 
 							authtypeok = 1;
-							var cred = new Buffer(args[2], 'base64').toString('utf8').split('\0');
-							client['username'] = cred[0] + '|' + cred[1];
-							client['password'] = cred[2];
-							addLog('(' + client['username'] + ':' + client['password'] + ')');
-							send('235 thats a cute password');
+							
+							if (args.length == 3) {
+								var cred = new Buffer(args[2], 'base64').toString('utf8').split('\0');
+								client['username'] = cred[0] + '|' + cred[1];
+								client['password'] = cred[2];
+								addLog('(' + client['username'] + ':' + client['password'] + ')');
+								send('235 thats a cute password');
+							} else {
+								mode = 'authplain';
+								send('334')
+							}
 						}
 						// more auth methods to support
 						
@@ -224,6 +229,17 @@ var srv = net.createServer(function(c) {
 			addLog(logmsg);
 			mode = 'cmd';
 			send('235 ok');
+		} else if (mode == 'authplain') {
+			try {
+				var cred = new Buffer(line, 'base64').toString('utf8').split('\0');
+				client['username'] = cred[0] + '|' + cred[1];
+				client['password'] = cred[2];
+				send('235 thats a cute password');
+				mode = 'cmd';
+				addLog('(' + client['username'] + ':' + client['password'] + ')');
+			} catch(err) {
+				addLog('S (err) unable to base64 decode: ' + line + ', err: ' + err);
+			}
 		} else if (mode == 'data') {
 			if(line == '.') {
 				mode = 'cmd';
