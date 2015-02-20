@@ -268,6 +268,6 @@ srv.listen(25, function() {
 		dropPrivileges();
 		console.log('Successfully dropped privileges to ' + process.getuid() + ':' + process.getgid());
 	} catch(err) {
-		console.warn('Unable to drop privileges, continuing as root!');
+		console.warn('Unable to drop privileges, continuing as ' + process.getuid() + ':' + process.getgid() + '!');
 	}
 });
